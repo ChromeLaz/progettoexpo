@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-
+import { View, Text, StyleSheet, FlatList } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 const BASE_URL = 'https://develop.ewlab.di.unimi.it/mc/mostri';
 
@@ -9,6 +9,7 @@ const BASE_URL = 'https://develop.ewlab.di.unimi.it/mc/mostri';
 export const getStoredRegisterData = async () => {
     try {
         const value = await AsyncStorage.getItem('registerData');
+        console.log('value from getStoredRegisterData', value);
         if (value === null) {
             console.log('No data in AsyncStorage for key "registerData"');
             const registerResponse = await register();
@@ -42,6 +43,7 @@ export const register = async () => {
     }
 };
 
+
 export const getRankings = async () => {
     try {
         const data = await getStoredRegisterData();
@@ -50,7 +52,7 @@ export const getRankings = async () => {
         console.log('sid from getRankings: ', sid);
         const response = await fetch(`${BASE_URL}/ranking?sid=${sid}`);
         const rankings = await response.json();
-        //console.log('rankings from getRankings', rankings);
+        console.log('rankings from getRankings', rankings);
         return rankings;
     } catch (error) {
         console.error('Failed to get rankings', error);
@@ -66,6 +68,7 @@ export const getUserDetail = async (uid) => {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         const userDetail = await response.json();
+        console.log('userDetail from getUserDetail', userDetail);
         return userDetail;
     } catch (error) {
         console.error('Failed to fetch user detail', error);
@@ -180,33 +183,37 @@ export const activateObject = async (id) => {
 
 
 
-
 const ComunicationController = () => {
-  const [ranking, setRanking] = useState(null);
+// creo variabile di stato ranking e con setRanking 
+//la posso modificare e ri-renderizzare la componente !!!
+
+  const [userDetail, setUserDetail] = useState(null);
 
   useEffect(() => {
-    getRankings().then((rankings) => {
-      setRanking(rankings);
+
+    getUserDetail(1).then((userDetail) => {
+        setUserDetail(userDetail);
     });
   }, []);
 
-  return (
-    <View style={styles.container}>
-      <Text>Ranking:</Text>
-      {/* Renderizza qui il ranking o un messaggio di attesa/caricamento */}
-      {/* {ranking ? <Text>{JSON.stringify(ranking)}</Text> : <Text>Caricamento ranking...</Text>} */}
-    </View>
-  );
+
 };
 
 
-
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+    container: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    listItem: {
+      padding: 10,
+      marginVertical: 5,
+      backgroundColor: '#add8e6', // Sfondo azzurro chiaro
+      borderRadius: 5,
+      flexDirection: 'row', // Elementi della lista su una sola riga
+      justifyContent: 'space-between', // Distribuisce lo spazio uniformemente
+    },
 });
 
 export default ComunicationController;
